@@ -76,7 +76,7 @@ export default function SignInPage() {
   // Pre-fill dummy seeded credentials for recruiter's ease of testing!
   const handleQuickFill = () => {
     setEmail("student@campuscompass.ai");
-    setPassword("password123");
+    setPassword("student123");
     addToast("Recruiter credentials auto-filled! Click 'Sign In with Email' to log in.", "info");
   };
 
