@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { College } from "@/types";
 
 // GET: Fetch saved comparisons for the logged-in user
 export async function GET() {

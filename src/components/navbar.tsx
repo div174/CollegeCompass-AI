@@ -66,14 +66,13 @@ export default function Navbar() {
   const navLinks = [
     { name: "Explore", href: "/", icon: Search },
     { name: "Compare", href: "/compare", icon: GitCompare, badge: selectedColleges.length },
-    { name: "Wishlist", href: "/wishlist", icon: Bookmark, protected: true },
   ];
 
   return (
     <>
       <header className="sticky top-0 z-[100] w-full glass-navbar border-b border-white/5 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
-          
+
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 flex-shrink-0 group">
             <div className="p-2 rounded-xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300 shadow-glow-primary">
@@ -99,7 +98,6 @@ export default function Navbar() {
           {/* Desktop Links & Controls */}
           <nav className="hidden md:flex items-center gap-6">
             {navLinks.map((link) => {
-              if (link.protected && !session) return null;
               const LinkIcon = link.icon;
               const isActive = pathname === link.href;
 
@@ -107,9 +105,8 @@ export default function Navbar() {
                 <Link
                   key={link.name}
                   href={link.href}
-                  className={`relative flex items-center gap-1.5 text-sm font-medium px-1.5 py-1 rounded-lg transition-colors duration-200 hover:text-primary ${
-                    isActive ? "text-primary font-semibold" : "text-muted-foreground"
-                  }`}
+                  className={`relative flex items-center gap-1.5 text-sm font-medium px-1.5 py-1 rounded-lg transition-colors duration-200 hover:text-primary ${isActive ? "text-primary font-semibold" : "text-muted-foreground"
+                    }`}
                 >
                   <LinkIcon className="w-4 h-4" />
                   {link.name}
@@ -274,7 +271,6 @@ export default function Navbar() {
               </button>
 
               {navLinks.map((link) => {
-                if (link.protected && !session) return null;
                 const LinkIcon = link.icon;
                 const isActive = pathname === link.href;
 
@@ -283,9 +279,8 @@ export default function Navbar() {
                     key={link.name}
                     href={link.href}
                     onClick={() => setMobileMenuOpen(false)}
-                    className={`flex items-center justify-between px-3 py-2 rounded-xl text-sm font-medium transition-colors ${
-                      isActive ? "bg-primary/10 text-primary font-semibold" : "text-muted-foreground hover:bg-muted/20"
-                    }`}
+                    className={`flex items-center justify-between px-3 py-2 rounded-xl text-sm font-medium transition-colors ${isActive ? "bg-primary/10 text-primary font-semibold" : "text-muted-foreground hover:bg-muted/20"
+                      }`}
                   >
                     <div className="flex items-center gap-2.5">
                       <LinkIcon className="w-4 h-4" />
@@ -333,18 +328,7 @@ export default function Navbar() {
                     Sign Out
                   </button>
                 </>
-              ) : (
-                <>
-                  <div className="h-[1px] bg-border my-1" />
-                  <Link
-                    href="/auth/signin"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="w-full text-center px-4 py-2.5 text-sm font-semibold text-primary-foreground bg-primary hover:bg-primary/95 shadow-md rounded-xl transition-all duration-200"
-                  >
-                    Sign In
-                  </Link>
-                </>
-              )}
+              ) : null}
             </motion.div>
           )}
         </AnimatePresence>
