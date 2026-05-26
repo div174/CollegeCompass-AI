@@ -1,0 +1,135 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String         @id @default(cuid())
+  name          String?
+  email         String?        @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?        // For credentials auth
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  accounts      Account[]
+  sessions      Session[]
+  reviews       Review[]
+  savedColleges SavedCollege[]
+  comparisons   Comparison[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model College {
+  id               String         @id @default(cuid())
+  name             String
+  description      String
+  location         String
+  state            String
+  established      Int
+  type             String         // "Public" | "Private"
+  rating           Float          // Overall Rating (e.g. 4.5)
+  averageFees      Float          // Average annual fees in INR
+  highestPlacement Float          // Highest package in LPA
+  averagePlacement Float          // Average package in LPA
+  logoUrl          String?
+  coverUrl         String?
+  facilities       String         // Stored as comma-separated values or JSON string
+  stream           String         // "Engineering" | "Management" | "Medical" | "Arts" | "Science"
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  courses          Course[]
+  reviews          Review[]
+  placements       Placement[]
+  savedBy          SavedCollege[]
+}
+
+model Course {
+  id        String   @id @default(cuid())
+  name      String   // e.g. "B.Tech Computer Science"
+  stream    String   // "Engineering" etc.
+  duration  Int      // Duration in years
+  fees      Float    // Annual course fees in INR
+  seats     Int      // Available seats
+  collegeId String
+  college   College  @relation(fields: [collegeId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  rating    Int      // 1-5 rating
+  comment   String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  collegeId String
+  college   College  @relation(fields: [collegeId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Placement {
+  id             String   @id @default(cuid())
+  year           Int      // e.g. 2024
+  highestPackage Float    // Package in LPA (e.g. 45.0)
+  averagePackage Float    // Package in LPA (e.g. 12.5)
+  placementRate  Float    // Percentage (e.g. 95.5)
+  companies      String   // Comma-separated or JSON list of prominent companies (e.g. "Google, Microsoft")
+  collegeId      String
+  college        College  @relation(fields: [collegeId], references: [id], onDelete: Cascade)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model SavedCollege {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  collegeId String
+  college   College  @relation(fields: [collegeId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, collegeId])
+}
+
+model Comparison {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  collegeIds String   // JSON stringified array of up to 3 college IDs (e.g. '["id1","id2"]')
+  name       String?  // Optional name for saved comparison
+  createdAt  DateTime @default(now())
+}
