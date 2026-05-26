@@ -1,7 +1,8 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 import { motion } from "framer-motion";
 import {
   Star,
@@ -9,6 +10,7 @@ import {
   Calendar,
   IndianRupee,
   Briefcase,
+  Bookmark,
   GitCompare,
   ArrowRight,
   Shield,
@@ -21,12 +23,50 @@ import { useToastStore } from "@/store/toastStore";
 
 interface CollegeCardProps {
   college: College;
+  isInitiallySaved?: boolean;
 }
 
-export default function CollegeCard({ college }: CollegeCardProps) {
+export default function CollegeCard({ college, isInitiallySaved = false }: CollegeCardProps) {
+  const { data: session } = useSession();
   const { addCollege, removeCollege, isCompared } = useComparisonStore();
   const { addToast } = useToastStore();
+
+  const [isSaved, setIsSaved] = useState(isInitiallySaved);
+  const [saveLoading, setSaveLoading] = useState(false);
   const compared = isCompared(college.id);
+  const activeIsSaved = session ? isSaved : false;
+
+  // Toggle Save/Unsave college API call
+  const handleToggleSave = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!session) {
+      addToast("Please sign in to save colleges to your wishlist", "info");
+      return;
+    }
+
+    setSaveLoading(true);
+    try {
+      const res = await fetch("/api/saved", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ collegeId: college.id }),
+      });
+      const result = await res.json();
+      if (result.success) {
+        setIsSaved(result.saved);
+        addToast(result.message, "success");
+      } else {
+        addToast(result.error || "Failed to update wishlist", "error");
+      }
+    } catch (err) {
+      console.error(err);
+      addToast("An error occurred. Please try again.", "error");
+    } finally {
+      setSaveLoading(false);
+    }
+  };
 
   // Toggle Comparison board state
   const handleToggleCompare = (e: React.MouseEvent) => {
@@ -86,9 +126,19 @@ export default function CollegeCard({ college }: CollegeCardProps) {
             Est. {college.established}
           </span>
         </div>
-
-
-
+        {/* Save Wishlist Button */}
+        <button
+          onClick={handleToggleSave}
+          disabled={saveLoading}
+          className={`absolute top-3 right-3 p-2 rounded-xl backdrop-blur-md border transition-all duration-200 cursor-pointer ${
+            activeIsSaved
+              ? "bg-rose-500/20 text-rose-500 border-rose-500/40"
+              : "bg-black/60 text-white border-white/10 hover:bg-white/20 hover:scale-105"
+          }`}
+          title={activeIsSaved ? "Saved to Wishlist" : "Save to Wishlist"}
+        >
+          <Bookmark className={`w-4 h-4 ${activeIsSaved ? "fill-rose-500" : ""}`} />
+        </button>
         {/* Rating chip in bottom right */}
         <div className="absolute bottom-3 right-3 flex items-center gap-1 px-2.5 py-1 rounded-lg bg-black/60 text-white backdrop-blur-md border border-white/10 text-xs font-bold">
           <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />

@@ -66,6 +66,7 @@ export default function Navbar() {
   const navLinks = [
     { name: "Explore", href: "/", icon: Search },
     { name: "Compare", href: "/compare", icon: GitCompare, badge: selectedColleges.length },
+    { name: "Wishlist", href: "/wishlist", icon: Bookmark, protected: true },
   ];
 
   return (
@@ -98,6 +99,7 @@ export default function Navbar() {
           {/* Desktop Links & Controls */}
           <nav className="hidden md:flex items-center gap-6">
             {navLinks.map((link) => {
+              if (link.protected && !session) return null;
               const LinkIcon = link.icon;
               const isActive = pathname === link.href;
 
@@ -271,6 +273,7 @@ export default function Navbar() {
               </button>
 
               {navLinks.map((link) => {
+                if (link.protected && !session) return null;
                 const LinkIcon = link.icon;
                 const isActive = pathname === link.href;
 
@@ -328,7 +331,18 @@ export default function Navbar() {
                     Sign Out
                   </button>
                 </>
-              ) : null}
+              ) : (
+                <>
+                  <div className="h-[1px] bg-border my-1" />
+                  <Link
+                    href="/auth/signin"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="w-full text-center px-4 py-2.5 text-sm font-semibold text-primary-foreground bg-primary hover:bg-primary/95 shadow-md rounded-xl transition-all duration-200"
+                  >
+                    Sign In
+                  </Link>
+                </>
+              )}
             </motion.div>
           )}
         </AnimatePresence>
